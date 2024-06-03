@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Matrix Operations</title>
+    <style>
+        /* Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f9fc;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        h1 {
+            color: #007BFF;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        input, select {
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        input[type="submit"] {
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        .matrix-inputs {
+            display: flex;
+            flex-direction: column;
+        }
+
+        h3 {
+            text-align: left;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const operationChoice = document.getElementById('operation-choice');
+            const forms = document.querySelectorAll('form');
+
+            // Show the selected form
+            function showForm(choice) {
+                forms.forEach(form => form.style.display = 'none');
+                document.getElementById(`${choice}-form`).style.display = 'block';
+            }
+
+            // Event listener to show the appropriate form
+            operationChoice.addEventListener('change', function () {
+                const choice = this.value;
+                showForm(choice);
+            });
+
+            // Generate matrix input fields based on rows and columns
+            function generateMatrixInputs(formId, matrixKeyPrefix, rows, cols) {
+                const form = document.getElementById(formId);
+                const matrix1Div = form.querySelector('.matrix1-inputs');
+                const matrix2Div = form.querySelector('.matrix2-inputs');
+                matrix1Div.innerHTML = '';
+                if (matrix2Div) matrix2Div.innerHTML = '';
+
+                // Add label for Matrix 1
+                const matrix1Label = document.createElement('h3');
+                matrix1Label.textContent = 'Matrix 1';
+                matrix1Label.style.textAlign = 'center';
+                matrix1Div.appendChild(matrix1Label);
+
+                // Add input fields for Matrix 1
+                for (let i = 0; i < rows; i++) {
+                    const rowDiv1 = document.createElement('div');
+                    for (let j = 0; j < cols; j++) {
+                        const input1 = document.createElement('input');
+                        input1.type = 'number';
+                        input1.name = `${matrixKeyPrefix}_${i + 1}_${j + 1}`;
+                        rowDiv1.appendChild(input1);
+                    }
+                    matrix1Div.appendChild(rowDiv1);
+                }
+
+                // Add label for Matrix 2 if applicable
+                if (matrix2Div) {
+                    const matrix2Label = document.createElement('h3');
+                    matrix2Label.textContent = 'Matrix 2';
+                    matrix2Label.style.textAlign = 'center';
+                    matrix2Div.appendChild(matrix2Label);
+
+                    // Add input fields for Matrix 2
+                    for (let i = 0; i < rows; i++) {
+                        const rowDiv2 = document.createElement('div');
+                        for (let j = 0; j < cols; j++) {
+                            const input2 = document.createElement('input');
+                            input2.type = 'number';
+                            input2.name = `${matrixKeyPrefix.replace('1', '2')}_${i + 1}_${j + 1}`;
+                            rowDiv2.appendChild(input2);
+                        }
+                        matrix2Div.appendChild(rowDiv2);
+                    }
+                }
+            }
+
+            // Handle dimension changes and generate matrix inputs
+            function handleDimensionsChange(event) {
+                const input = event.target;
+                const formId = input.form.id;
+                let rows, cols;
+
+                if (formId === 'multiply-form') {
+                    const rows1 = parseInt(input.form.querySelector('input[name="rows1"]').value) || 0;
+                    const cols1 = parseInt(input.form.querySelector('input[name="cols1"]').value) || 0;
+                    const rows2 = parseInt(input.form.querySelector('input[name="rows2"]').value) || 0;
+                    const cols2 = parseInt(input.form.querySelector('input[name="cols2"]').value) || 0;
+
+                    // Generate matrix inputs for Matrix 1 and Matrix 2 in multiplication form
+                    if (rows1 && cols1) {
+                        generateMatrixInputs(formId, 'matrix1', rows1, cols1);
+                    }
+
+                    if (rows2 && cols2) {
+                        generateMatrixInputs(formId, 'matrix2', rows2, cols2);
+                    }
+                } else {
+                    // For other operations (addition, subtraction, eigenvalues/eigenvectors)
+                    rows = parseInt(input.form.querySelector('input[name="rows"]').value) || 0;
+                    cols = parseInt(input.form.querySelector('input[name="cols"]').value) || 0;
+
+                    // Generate matrix inputs for single matrix in other forms
+                    if (rows && cols) {
+                        generateMatrixInputs(formId, 'matrix1', rows, cols);
+                    }
+                }
+            }
+
+            // Add event listeners for changes in rows and cols input fields
+            document.querySelectorAll('input[name="rows"], input[name="cols"]').forEach(input => {
+                input.addEventListener('change', handleDimensionsChange);
+            });
+
+            document.querySelectorAll('input[name="rows1"], input[name="cols1"], input[name="rows2"], input[name="cols2"]').forEach(input => {
+                input.addEventListener('change', handleDimensionsChange);
+            });
+
+            // Set initial form
+            document.getElementById('operation-choice').value = 'add';
+            showForm('add');
+        });
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Matrix Operations</h1>
+        <label for="operation-choice">Select an operation:</label>
+        <select id="operation-choice" name="operation-choice">
+            <option value="add">Addition</option>
+            <option value="subtract">Subtraction</option>
+            <option value="multiply">Multiplication</option>
+            <option value="eigen">Eigenvalues and Eigenvectors</option>
+            <option value="rank">Rank</option>
+        </select>
+
+        <!-- Form for Addition -->
+        <form id="add-form" action="/add" method="POST">
+            <h2>Addition</h2>
+            <p>Enter matrix dimensions:</p>
+            <input type="number" name="rows" placeholder="Rows" required>
+            <input type="number" name="cols" placeholder="Columns" required>
+            <div class="matrix-inputs matrix1-inputs"></div>
+            <div class="matrix-inputs matrix2-inputs"></div>
+            <input type="submit" value="Add Matrices">
+        </form>
+
+        <!-- Form for Subtraction -->
+        <form id="subtract-form" action="/subtract" method="POST">
+            <h2>Subtraction</h2>
+            <p>Enter matrix dimensions:</p>
+            <input type="number" name="rows" placeholder="Rows" required>
+            <input type="number" name="cols" placeholder="Columns" required>
+            <div class="matrix-inputs matrix1-inputs"></div>
+            <div class="matrix-inputs matrix2-inputs"></div>
+            <input type="submit" value="Subtract Matrices">
+        </form>
+
+        <!-- Form for Multiplication -->
+        <form id="multiply-form" action="/multiply" method="POST">
+            <h2>Multiplication</h2>
+            <p>Enter matrix dimensions:</p>
+            <input type="number" name="rows1" placeholder="Rows for Matrix 1" required>
+            <input type="number" name="cols1" placeholder="Columns for Matrix 1" required>
+            <input type="number" name="rows2" placeholder="Rows for Matrix 2" required>
+            <input type="number" name="cols2" placeholder="Columns for Matrix 2" required>
+            <div class="matrix-inputs matrix1-inputs"></div>
+            <div class="matrix-inputs matrix2-inputs"></div>
+            <input type="submit" value="Multiply Matrices">
+        </form>
+
+        <!-- Form for Eigenvalues and Eigenvectors -->
+        <form id="eigen-form" action="/eigen" method="POST">
+            <h2>Eigenvalues and Eigenvectors</h2>
+            <p>Enter matrix dimensions:</p>
+            <input type="number" name="rows" placeholder="Rows" required>
+            <input type="number" name="cols" placeholder="Columns" required>
+            <div class="matrix-inputs matrix1-inputs"></div>
+            <input type="submit" value="Calculate Eigenvalues and Eigenvectors">
+        </form>
+
+        <!-- Form for Rank -->
+        <form id="rank-form" action="/rank" method="POST">
+            <h2>Rank</h2>
+            <p>Enter matrix dimensions:</p>
+            <input type="number" name="rows" placeholder="Rows" required>
+            <input type="number" name="cols" placeholder="Columns" required>
+            <div class="matrix-inputs matrix1-inputs"></div>
+            <input type="submit" value="Calculate Rank">
+        </form>
+    </div>
+</body>
+</html>

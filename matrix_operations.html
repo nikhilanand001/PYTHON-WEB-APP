@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Matrix Operations</title>
+    <style>
+        /* Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f9fc;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        h1 {
+            color: #007BFF;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        input, select {
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        input[type="submit"] {
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        .matrix-inputs {
+            display: flex;
+            flex-direction: column;
+            margin: 10px 0;
+        }
+
+        .matrix-inputs input {
+            margin: 5px;
+        }
+
+        h3 {
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Matrix Operations</h1>
+        <label for="operation-choice">Select an operation:</label>
+        <select id="operation-choice" name="operation-choice">
+            <option value="add">Addition</option>
+            <option value="subtract">Subtraction</option>
+            <option value="multiply">Multiplication</option>
+            <option value="rank">Rank</option>
+            <option value="eigen">Eigenvalues and Eigenvectors</option>
+        </select>
+
+        <!-- Form for Addition -->
+        <form id="add-form" action="/add" method="POST" class="operation-form">
+            <h2>Addition</h2>
+            <p>Enter matrix dimensions:</p>
+            <input type="number" name="rows" placeholder="Rows" required>
+            <input type="number" name="cols" placeholder="Columns" required>
+            <div id="matrix1-inputs" class="matrix-inputs"></div>
+            <div id="matrix2-inputs" class="matrix-inputs"></div>
+            <input type="submit" value="Add Matrices">
+        </form>
+
+        <!-- Form for Subtraction -->
+        <form id="subtract-form" action="/subtract" method="POST" class="operation-form">
+            <h2>Subtraction</h2>
+            <p>Enter matrix dimensions:</p>
+            <input type="number" name="rows" placeholder="Rows" required>
+            <input type="number" name="cols" placeholder="Columns" required>
+            <div id="matrix1-inputs" class="matrix-inputs"></div>
+            <div id="matrix2-inputs" class="matrix-inputs"></div>
+            <input type="submit" value="Subtract Matrices">
+        </form>
+
+        <!-- Form for Multiplication -->
+        <form id="multiply-form" action="/multiply" method="POST" class="operation-form">
+            <h2>Multiplication</h2>
+            <p>Enter matrix dimensions:</p>
+            <input type="number" name="rows1" placeholder="Rows for Matrix 1" required>
+            <input type="number" name="cols1" placeholder="Columns for Matrix 1" required>
+            <input type="number" name="rows2" placeholder="Rows for Matrix 2" required>
+            <input type="number" name="cols2" placeholder="Columns for Matrix 2" required>
+            <div id="matrix1-inputs" class="matrix-inputs"></div>
+            <div id="matrix2-inputs" class="matrix-inputs"></div>
+            <input type="submit" value="Multiply Matrices">
+        </form>
+
+        <!-- Form for Rank -->
+        <form id="rank-form" action="/rank" method="POST" class="operation-form">
+            <h2>Rank</h2>
+            <p>Enter matrix dimensions:</p>
+            <input type="number" name="rows" placeholder="Rows" required>
+            <input type="number" name="cols" placeholder="Columns" required>
+            <div id="matrix1-inputs" class="matrix-inputs"></div>
+            <input type="submit" value="Calculate Rank">
+        </form>
+
+        <!-- Form for Eigenvalues and Eigenvectors -->
+        <form id="eigen-form" action="/eigen" method="POST" class="operation-form">
+            <h2>Eigenvalues and Eigenvectors</h2>
+            <p>Enter matrix dimensions:</p>
+            <input type="number" name="rows" placeholder="Rows" required>
+            <input type="number" name="cols" placeholder="Columns" required>
+            <div id="matrix1-inputs" class="matrix-inputs"></div>
+            <input type="submit" value="Calculate Eigenvalues and Eigenvectors">
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const operationChoice = document.getElementById('operation-choice');
+            const forms = document.querySelectorAll('.operation-form');
+
+            function clearInputs(container) {
+                while (container.firstChild) {
+                    container.removeChild(container.firstChild);
+                }
+            }
+
+            function generateInputs(container, rows, cols, prefix) {
+                for (let i = 0; i < rows; i++) {
+                    for (let j = 0; j < cols; j++) {
+                        const input = document.createElement('input');
+                        input.type = 'number';
+                        input.name = `${prefix}_${i+1}_${j+1}`;
+                        input.placeholder = `${prefix}(${i+1},${j+1})`;
+                        container.appendChild(input);
+                    }
+                    container.appendChild(document.createElement('br'));
+                }
+            }
+
+            function showForm(choice) {
+                forms.forEach(form => form.style.display = 'none');
+                const form = document.getElementById(`${choice}-form`);
+                form.style.display = 'block';
+
+                const rowsInput = form.querySelector('input[name="rows"]');
+                const colsInput = form.querySelector('input[name="cols"]');
+                const rows1Input = form.querySelector('input[name="rows1"]');
+                const cols1Input = form.querySelector('input[name="cols1"]');
+                const rows2Input = form.querySelector('input[name="rows2"]');
+                const cols2Input = form.querySelector('input[name="cols2"]');
+                const matrix1Inputs = form.querySelector('#matrix1-inputs');
+                const matrix2Inputs = form.querySelector('#matrix2-inputs');
+
+                if (rowsInput && colsInput) {
+                    rowsInput.addEventListener('input', function () {
+                        clearInputs(matrix1Inputs);
+                        clearInputs(matrix2Inputs);
+                        const rows = rowsInput.value;
+                        const cols = colsInput.value;
+                        generateInputs(matrix1Inputs, rows, cols, 'matrix1');
+                        generateInputs(matrix2Inputs, rows, cols, 'matrix2');
+                    });
+
+                    colsInput.addEventListener('input', function () {
+                        clearInputs(matrix1Inputs);
+                        clearInputs(matrix2Inputs);
+                        const rows = rowsInput.value;
+                        const cols = colsInput.value;
+                        generateInputs(matrix1Inputs, rows, cols, 'matrix1');
+                        generateInputs(matrix2Inputs, rows, cols, 'matrix2');
+                    });
+                }
+
+                if (rows1Input && cols1Input && rows2Input && cols2Input) {
+                    rows1Input.addEventListener('input', function () {
+                        clearInputs(matrix1Inputs);
+                        const rows1 = rows1Input.value;
+                        const cols1 = cols1Input.value;
+                        generateInputs(matrix1Inputs, rows1, cols1, 'matrix1');
+                    });
+
+                    cols1Input.addEventListener('input', function () {
+                        clearInputs(matrix1Inputs);
+                        const rows1 = rows1Input.value;
+                        const cols1 = cols1Input.value;
+                        generateInputs(matrix1Inputs, rows1, cols1, 'matrix1');
+                    });
+
+                    rows2Input.addEventListener('input', function () {
+                        clearInputs(matrix2Inputs);
+                        const rows2 = rows2Input.value;
+                        const cols2 = cols2Input.value;
+                        generateInputs(matrix2Inputs, rows2, cols2, 'matrix2');
+                    });
+
+                    cols2Input.addEventListener('input', function () {
+                        clearInputs(matrix2Inputs);
+                        const rows2 = rows2Input.value;
+                        const cols2 = cols2Input.value;
+                        generateInputs(matrix2Inputs, rows2, cols2, 'matrix2');
+                    });
+                }
+            }
+
+            operationChoice.addEventListener('change', function () {
+                const choice = this.value;
+                showForm(choice);
+            });
+        });
+    </script>
+</body>
+
+</html>

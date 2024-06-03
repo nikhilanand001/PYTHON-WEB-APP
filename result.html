@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Matrix Operations Result</title>
+    <style>
+        /* Global styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f9fc;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        /* Container for content */
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        /* Heading styles */
+        h1 {
+            color: #007BFF;
+        }
+
+        /* Matrix display */
+        .matrix {
+            display: inline-block;
+            margin: 10px 0;
+            text-align: left;
+        }
+
+        /* Matrix rows */
+        .matrix .row {
+            display: flex;
+        }
+
+        /* Matrix elements */
+        .matrix .element {
+            padding: 5px;
+            margin: 2px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        /* Link styling */
+        a {
+            margin-top: 20px;
+            color: #007BFF;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>{{ operation }} Result</h1>
+
+        {% if operation == 'Eigenvalues and Eigenvectors' %}
+            <h2>Eigenvalues:</h2>
+            <div class="matrix">
+                {% for eigenvalue in eigenvalues %}
+                    <div class="row">
+                        <div class="element">{{ eigenvalue }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <h2>Eigenvectors:</h2>
+            <div class="matrix">
+                {% for eigenvector in eigenvectors %}
+                    <div class="row">
+                        {% for value in eigenvector %}
+                            <div class="element">{{ value }}</div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% elif operation == 'Rank' %}
+            <h2>Rank of the Matrix:</h2>
+            <div class="matrix">
+                <div class="row">
+                    <div class="element">{{ rank }}</div>
+                </div>
+            </div>
+        {% else %}
+            <h2>Resulting Matrix:</h2>
+            <div class="matrix">
+                {% for row in result %}
+                    <div class="row">
+                        {% for value in row %}
+                            <div class="element">{{ value }}</div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <a href="/">Go Back</a>
+    </div>
+</body>
+
+</html>
